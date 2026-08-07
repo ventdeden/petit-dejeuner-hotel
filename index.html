@@ -181,6 +181,20 @@ p{margin:0;}
 .stepper-card .comment-btn{background:rgba(0,0,0,0.2);color:var(--amber);}
 .stepper-card .comment-btn.has-comment{background:var(--amber);color:var(--ink);}
 
+.comment-popover{
+  position:absolute;top:28px;left:6px;z-index:20;width:150px;max-width:60vw;
+  background:var(--ink);border:1px solid var(--line);border-radius:10px;
+  padding:10px 12px;box-shadow:0 8px 20px rgba(0,0,0,0.4);text-align:left;
+}
+.comment-popover p{
+  font-size:12px;line-height:1.4;color:var(--cream);white-space:pre-wrap;
+  word-break:break-word;margin:0;
+}
+.comment-edit-link{
+  display:block;margin-top:8px;background:none;border:none;color:var(--amber);
+  font-size:12px;font-weight:600;cursor:pointer;padding:0;text-align:left;
+}
+
 /* ---- Empty state ---- */
 .empty-state{
   background:var(--panel);border:1px dashed var(--line);border-radius:18px;
@@ -281,6 +295,15 @@ let STATE_LOADED_ONCE = false;
 let addRoomDraft = { room: null, people: 1 };
 let COMMENT_ROOM = null;      // numéro de chambre en cours d'édition de commentaire, ou null
 let commentDraft = '';
+let OPEN_COMMENT_POPOVER = null; // numéro de chambre dont le commentaire est affiché en dropdown, ou null
+
+function toggleCommentPopover(n){
+  OPEN_COMMENT_POPOVER = (OPEN_COMMENT_POPOVER === n) ? null : n;
+  render();
+}
+function escapeHtml(s){
+  return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
 
 /* =========================================================
    FIRESTORE
@@ -585,12 +608,19 @@ function renderServiceBody(stats){
 
 function renderReceptionCard(n){
   const r = STATE.rooms[n];
-  const hasComment = !!(r.comment && r.comment.trim());
-  const commentBtn = `<button class="comment-btn${hasComment ? ' has-comment' : ''}" data-comment="${n}" title="${hasComment ? 'Voir / modifier le commentaire' : 'Ajouter un commentaire'}">💬</button>`;
+  const comment = (r.comment || '').trim();
+  const hasComment = !!comment;
+  const commentBtn = `<button type="button" class="comment-btn${hasComment ? ' has-comment' : ''}" data-comment="${n}" title="${hasComment ? 'Voir le commentaire' : 'Ajouter un commentaire'}">💬</button>`;
+  const popover = OPEN_COMMENT_POPOVER === n ? `
+    <div class="comment-popover" data-popover="${n}">
+      <p>${escapeHtml(comment)}</p>
+      <button type="button" class="comment-edit-link" data-comment-edit="${n}">✏️ Modifier</button>
+    </div>` : '';
   if(r.state === 'selected'){
     return `
     <div class="stepper-card">
       ${commentBtn}
+      ${popover}
       <button class="card-close" data-toggle="${n}" title="Retirer de la sélection">✕</button>
       <span class="room-number amber">${n}</span>
       <div class="stepper">
@@ -607,16 +637,19 @@ function renderReceptionCard(n){
     extra = r.people ? `<span class="people-badge">👤 ${r.people}</span>` : `<span class="check-icon">✓</span>`;
   }
   return `
-  <button class="${cls}" data-toggle="${n}">
+  <div class="${cls}" data-toggle="${n}" role="button" tabindex="0">
     ${commentBtn}
+    ${popover}
     ${badge}
     <span class="room-number">${n}</span>
     ${extra}
-  </button>`;
+  </div>`;
 }
 
 function renderServiceCard(n){
   const r = STATE.rooms[n];
+  const comment = (r.comment || '').trim();
+  const hasComment = !!comment;
   let cls = 'room-card';
   let extra = '';
   if(r.state === 'selected'){
@@ -628,19 +661,37 @@ function renderServiceCard(n){
   }
   if(r.unplanned) cls += ' dashed';
   const badge = r.unplanned ? `<span class="unplanned-badge">+</span>` : '';
+  const commentBtn = hasComment ? `<button type="button" class="comment-btn has-comment" data-comment="${n}" title="Voir le commentaire">💬</button>` : '';
+  const popover = (hasComment && OPEN_COMMENT_POPOVER === n) ? `
+    <div class="comment-popover" data-popover="${n}">
+      <p>${escapeHtml(comment)}</p>
+    </div>` : '';
   return `
-  <button class="${cls}" data-toggle-arrived="${n}">
+  <div class="${cls}" data-toggle-arrived="${n}" role="button" tabindex="0">
+    ${commentBtn}
+    ${popover}
     ${badge}
     <span class="room-number">${n}</span>
     ${extra}
-  </button>`;
+  </div>`;
+}
+
+function wireCardKeyboard(el, onActivate){
+  el.addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter' || e.key === ' '){
+      e.preventDefault();
+      onActivate();
+    }
+  });
 }
 
 function wireReceptionGrid(){
   const grid = document.getElementById('reception-grid');
   if(!grid) return;
   grid.querySelectorAll('[data-toggle]').forEach(el=>{
-    el.onclick = ()=> toggleSelect(Number(el.dataset.toggle));
+    const fn = ()=> toggleSelect(Number(el.dataset.toggle));
+    el.onclick = fn;
+    wireCardKeyboard(el, fn);
   });
   grid.querySelectorAll('[data-step]').forEach(el=>{
     el.onclick = (e)=>{
@@ -651,7 +702,20 @@ function wireReceptionGrid(){
   grid.querySelectorAll('[data-comment]').forEach(el=>{
     el.onclick = (e)=>{
       e.stopPropagation();
-      openCommentModal(Number(el.dataset.comment));
+      const n = Number(el.dataset.comment);
+      const r = STATE.rooms[n];
+      const hasComment = !!(r.comment && r.comment.trim());
+      if(hasComment){
+        toggleCommentPopover(n);
+      } else {
+        openCommentModal(n);
+      }
+    };
+  });
+  grid.querySelectorAll('[data-comment-edit]').forEach(el=>{
+    el.onclick = (e)=>{
+      e.stopPropagation();
+      openCommentModal(Number(el.dataset.commentEdit));
     };
   });
 }
@@ -660,7 +724,15 @@ function wireServiceGrid(){
   const grid = document.getElementById('service-grid');
   if(!grid) return;
   grid.querySelectorAll('[data-toggle-arrived]').forEach(el=>{
-    el.onclick = ()=> toggleArrived(Number(el.dataset.toggleArrived));
+    const fn = ()=> toggleArrived(Number(el.dataset.toggleArrived));
+    el.onclick = fn;
+    wireCardKeyboard(el, fn);
+  });
+  grid.querySelectorAll('[data-comment]').forEach(el=>{
+    el.onclick = (e)=>{
+      e.stopPropagation();
+      toggleCommentPopover(Number(el.dataset.comment));
+    };
   });
 }
 
@@ -796,6 +868,13 @@ function render(){
 /* =========================================================
    BOOT
    ========================================================= */
+document.addEventListener('click', (e)=>{
+  if(OPEN_COMMENT_POPOVER === null) return;
+  if(e.target.closest('.comment-btn') || e.target.closest('.comment-popover')) return;
+  OPEN_COMMENT_POPOVER = null;
+  render();
+});
+
 auth.onAuthStateChanged(async (user)=>{
   AUTH_USER = user;
   AUTH_LOADING = false;
