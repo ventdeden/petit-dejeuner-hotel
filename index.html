@@ -541,7 +541,7 @@ function renderMain(app){
           <button class="link-btn" id="back-session">← Changer de session</button>
           <div class="hotel-name">Hôtel Vent d'Eden Park</div>
           <div class="eyebrow">${SESSION === 'reception' ? 'Réception' : 'Service du matin'}</div>
-          <h1>${SESSION === 'reception' ? 'Petits-déjeuners attendus' : 'Arrivées petit-déjeuner'}</h1>
+          <h1>${SESSION === 'reception' ? 'Petits-déjeuners' : 'Arrivées petit-déjeuner'}</h1>
         </div>
       </div>
       ${SESSION === 'reception'
@@ -603,7 +603,7 @@ function renderReceptionBody(unplannedRooms){
 
 function renderServiceBody(stats){
   if(stats.selectedRooms.length === 0){
-    return `<div class="empty-state">🌅<p>Aucune chambre n'a encore été sélectionnée par la réception.</p></div>`;
+    return `<div class="empty-state"><p>Aucune chambre n'a encore été sélectionnée par la réception.</p></div>`;
   }
   return `
   <div>
