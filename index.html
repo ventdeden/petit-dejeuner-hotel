@@ -122,14 +122,14 @@ p{margin:0;}
 .chip-sage{font-size:12px;font-weight:500;padding:5px 10px;border-radius:999px;background:var(--ink);color:var(--sage);border:1px dashed var(--sage);}
 
 /* ---- Room grid ---- */
-.room-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
-@media(min-width:480px){ .room-grid{grid-template-columns:repeat(5,1fr);} }
-@media(min-width:720px){ .room-grid{grid-template-columns:repeat(6,1fr);} }
-@media(min-width:960px){ .room-grid{grid-template-columns:repeat(8,1fr);} }
+.room-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(min-width:480px){ .room-grid{grid-template-columns:repeat(4,1fr);} }
+@media(min-width:720px){ .room-grid{grid-template-columns:repeat(5,1fr);} }
+@media(min-width:960px){ .room-grid{grid-template-columns:repeat(6,1fr);} }
 
 .room-card{
-  position:relative;aspect-ratio:1/1;border-radius:14px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  position:relative;aspect-ratio:4/5;border-radius:16px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;
   background:var(--panel);border:1.5px solid var(--line);color:var(--cream);
   cursor:pointer;font-family:inherit;transition:transform .1s;
 }
@@ -137,32 +137,42 @@ p{margin:0;}
 .room-card.amber{background:var(--amber-soft);border-color:var(--amber);color:var(--amber);}
 .room-card.sage{background:var(--sage-soft);border-color:var(--sage);color:var(--sage);}
 .room-card.dashed{border-style:dashed;}
-.room-number{font-size:18px;font-weight:600;}
-@media(min-width:640px){ .room-number{font-size:20px;} }
-.people-badge,.check-icon,.coffee-icon{font-size:11px;opacity:.9;}
+.room-number{font-size:20px;font-weight:600;}
+@media(min-width:640px){ .room-number{font-size:23px;} }
+.people-badge,.check-icon,.coffee-icon{font-size:13px;opacity:.9;font-weight:600;}
 .unplanned-badge{
-  position:absolute;top:4px;right:4px;width:15px;height:15px;border-radius:50%;
-  background:var(--amber);color:var(--ink);font-size:10px;font-weight:bold;
+  position:absolute;top:6px;right:6px;width:17px;height:17px;border-radius:50%;
+  background:var(--amber);color:var(--ink);font-size:11px;font-weight:bold;
   display:flex;align-items:center;justify-content:center;
 }
 
 .stepper-card{
-  background:var(--amber-soft);border:1.5px solid var(--amber);border-radius:14px;
-  aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative;
+  background:var(--amber-soft);border:1.5px solid var(--amber);border-radius:16px;
+  aspect-ratio:4/5;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative;
 }
 .card-close{
-  position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;
-  background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;
+  position:absolute;top:6px;right:6px;width:20px;height:20px;border-radius:50%;
+  background:none;border:none;color:var(--muted);font-size:12px;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
 }
 .room-number.amber{color:var(--amber);}
-.stepper{display:flex;align-items:center;gap:6px;}
+.stepper{display:flex;align-items:center;gap:7px;}
 .step-btn{
-  width:22px;height:22px;border-radius:50%;border:1px solid var(--amber);background:none;color:var(--amber);
-  font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  width:24px;height:24px;border-radius:50%;border:1px solid var(--amber);background:none;color:var(--amber);
+  font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
 }
 .step-btn-fill{background:var(--amber);color:var(--ink);border-color:var(--amber);}
-.step-value{font-size:12px;font-weight:600;width:16px;text-align:center;}
+.step-value{font-size:13px;font-weight:600;width:18px;text-align:center;}
+
+.comment-btn{
+  position:absolute;top:6px;left:6px;width:18px;height:18px;border-radius:50%;
+  background:rgba(0,0,0,0.25);border:none;color:inherit;font-size:10px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;opacity:.85;
+}
+.comment-btn:active{transform:scale(0.9);}
+.comment-btn.has-comment{background:var(--amber);color:var(--ink);opacity:1;}
+.stepper-card .comment-btn{background:rgba(0,0,0,0.2);color:var(--amber);}
+.stepper-card .comment-btn.has-comment{background:var(--amber);color:var(--ink);}
 
 /* ---- Empty state ---- */
 .empty-state{
@@ -191,6 +201,12 @@ p{margin:0;}
   width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
   background:var(--ink);color:var(--cream);font-size:14px;margin-bottom:16px;
 }
+.modal textarea{
+  width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
+  background:var(--ink);color:var(--cream);font-size:14px;margin-bottom:16px;
+  font-family:inherit;resize:vertical;min-height:80px;
+}
+.modal textarea::placeholder{color:var(--muted);}
 .stepper-modal{gap:16px;margin-bottom:24px;}
 .stepper-modal .step-btn{width:34px;height:34px;font-size:16px;border-color:var(--line);color:var(--cream);}
 .stepper-modal .step-btn-fill{background:var(--amber);color:var(--ink);border-color:var(--amber);}
@@ -237,7 +253,7 @@ const ROOMS = Array.from({ length: 175 - 101 + 1 }, (_, i) => 101 + i);
 
 function buildDefaultRooms(){
   const rooms = {};
-  ROOMS.forEach(n => { rooms[String(n)] = { state: 'none', people: null, unplanned: false }; });
+  ROOMS.forEach(n => { rooms[String(n)] = { state: 'none', people: null, unplanned: false, comment: '' }; });
   return rooms;
 }
 
@@ -254,6 +270,8 @@ let CONFIRM_RESET = false;
 let ADD_ROOM_OPEN = false;
 let STATE_LOADED_ONCE = false;
 let addRoomDraft = { room: null, people: 1 };
+let COMMENT_ROOM = null;      // numéro de chambre en cours d'édition de commentaire, ou null
+let commentDraft = '';
 
 /* =========================================================
    FIRESTORE
@@ -333,6 +351,24 @@ function doReset(){
   STATE.rooms = buildDefaultRooms();
   CONFIRM_RESET = false;
   render();
+  saveState();
+}
+function openCommentModal(n){
+  COMMENT_ROOM = n;
+  commentDraft = STATE.rooms[n].comment || '';
+  render();
+}
+function closeCommentModal(){
+  COMMENT_ROOM = null;
+  commentDraft = '';
+  render();
+}
+function saveComment(){
+  const n = COMMENT_ROOM;
+  if(n == null) return;
+  const r = STATE.rooms[n];
+  STATE.rooms[n] = { ...r, comment: commentDraft.trim() };
+  closeCommentModal();
   saveState();
 }
 
@@ -487,6 +523,7 @@ function renderMain(app){
   </div>
   ${CONFIRM_RESET ? renderResetModal() : ''}
   ${ADD_ROOM_OPEN ? renderAddRoomModal() : ''}
+  ${COMMENT_ROOM !== null ? renderCommentModal() : ''}
   `;
 
   document.getElementById('back-session').onclick = ()=>{ SESSION = null; render(); };
@@ -501,6 +538,7 @@ function renderMain(app){
   }
   if(CONFIRM_RESET) wireResetModal();
   if(ADD_ROOM_OPEN) wireAddRoomModal();
+  if(COMMENT_ROOM !== null) wireCommentModal();
 }
 
 function renderReceptionBody(unplannedRooms){
@@ -535,9 +573,12 @@ function renderServiceBody(stats){
 
 function renderReceptionCard(n){
   const r = STATE.rooms[n];
+  const hasComment = !!(r.comment && r.comment.trim());
+  const commentBtn = `<button class="comment-btn${hasComment ? ' has-comment' : ''}" data-comment="${n}" title="${hasComment ? 'Voir / modifier le commentaire' : 'Ajouter un commentaire'}">💬</button>`;
   if(r.state === 'selected'){
     return `
     <div class="stepper-card">
+      ${commentBtn}
       <button class="card-close" data-toggle="${n}" title="Retirer de la sélection">✕</button>
       <span class="room-number amber">${n}</span>
       <div class="stepper">
@@ -555,6 +596,7 @@ function renderReceptionCard(n){
   }
   return `
   <button class="${cls}" data-toggle="${n}">
+    ${commentBtn}
     ${badge}
     <span class="room-number">${n}</span>
     ${extra}
@@ -592,6 +634,12 @@ function wireReceptionGrid(){
     el.onclick = (e)=>{
       e.stopPropagation();
       updatePeople(Number(el.dataset.step), Number(el.dataset.delta));
+    };
+  });
+  grid.querySelectorAll('[data-comment]').forEach(el=>{
+    el.onclick = (e)=>{
+      e.stopPropagation();
+      openCommentModal(Number(el.dataset.comment));
     };
   });
 }
@@ -660,6 +708,34 @@ function renderAddRoomModal(){
     </div>
   </div>`;
 }
+function renderCommentModal(){
+  const n = COMMENT_ROOM;
+  return `
+  <div class="modal-overlay" id="comment-overlay">
+    <div class="modal">
+      <button class="modal-close" id="comment-close">✕</button>
+      <h3>Commentaire — Chambre ${n}</h3>
+      <p>Ajoutez une note visible par l'équipe (allergie, demande particulière, retard…).</p>
+      <textarea id="comment-textarea" placeholder="Ex. : allergie aux fruits à coque, arrivée tardive…">${commentDraft ? commentDraft.replace(/</g,'&lt;') : ''}</textarea>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="comment-cancel">Annuler</button>
+        <button class="btn btn-amber" id="comment-save">Enregistrer</button>
+      </div>
+    </div>
+  </div>`;
+}
+function wireCommentModal(){
+  const overlay = document.getElementById('comment-overlay');
+  const close = closeCommentModal;
+  overlay.onclick = (e)=>{ if(e.target === overlay) close(); };
+  document.getElementById('comment-close').onclick = close;
+  document.getElementById('comment-cancel').onclick = close;
+  const textarea = document.getElementById('comment-textarea');
+  textarea.oninput = ()=>{ commentDraft = textarea.value; };
+  document.getElementById('comment-save').onclick = saveComment;
+  textarea.focus();
+}
+
 function wireAddRoomModal(){
   const overlay = document.getElementById('add-overlay');
   const close = ()=>{ ADD_ROOM_OPEN = false; render(); };
