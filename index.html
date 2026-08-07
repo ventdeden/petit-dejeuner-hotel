@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>Petits-déjeuners</title>
+<style>
+:root{
+  --ink:#241A12;
+  --panel:#2F2318;
+  --line:#4A392A;
+  --cream:#F4E9D8;
+  --muted:#B6A088;
+  --amber:#E2963C;
+  --amber-soft:#3A2C1B;
+  --sage:#8FAE7C;
+  --sage-soft:#26301F;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--ink);
+  color:var(--cream);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  min-height:100vh;
+}
+h1,h2,h3{font-family:Georgia,'Times New Roman',serif;margin:0;}
+p{margin:0;}
+.muted{color:var(--muted);}
+.small{font-size:13px;}
+
+.center-wrap{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.page{
+  max-width:960px;
+  margin:0 auto;
+  padding:24px 16px 60px;
+}
+@media(min-width:640px){ .page{ padding:40px 32px 80px; } }
+
+.panel{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:18px;
+}
+
+/* ---- Auth ---- */
+.auth-card{
+  width:100%;
+  max-width:380px;
+  padding:28px 26px;
+  text-align:center;
+}
+.brand-emoji{font-size:30px;display:block;margin-bottom:10px;}
+.auth-card h2{font-size:20px;color:var(--cream);margin-bottom:6px;}
+.auth-card p{margin-bottom:20px;}
+.auth-card input{
+  width:100%;
+  padding:12px 14px;
+  border-radius:10px;
+  border:1.5px solid var(--line);
+  background:var(--ink);
+  color:var(--cream);
+  font-size:14px;
+  margin-bottom:10px;
+}
+.auth-card input::placeholder{color:var(--muted);}
+.err-msg{color:#E88989;font-size:13px;margin-top:10px;min-height:14px;}
+
+/* ---- Session picker ---- */
+.picker{width:100%;max-width:420px;text-align:center;}
+.brand-line{font-size:26px;font-family:Georgia,'Times New Roman',serif;color:var(--cream);margin-bottom:6px;font-weight:bold;}
+.picker>.muted{display:block;margin-bottom:26px;}
+.session-card{
+  display:flex;align-items:center;gap:16px;width:100%;text-align:left;
+  background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  padding:16px 18px;margin-bottom:14px;cursor:pointer;color:var(--cream);
+  transition:transform .1s;
+}
+.session-card:active{transform:scale(0.98);}
+.session-icon{
+  font-size:22px;width:44px;height:44px;flex-shrink:0;border-radius:50%;
+  background:var(--ink);display:flex;align-items:center;justify-content:center;
+}
+.session-title{display:block;font-weight:600;font-size:15px;}
+.session-desc{display:block;font-size:12px;color:var(--muted);margin-top:2px;}
+.logout-link{display:inline-block;margin-top:10px;font-size:12px;color:var(--muted);text-decoration:none;}
+
+/* ---- Header ---- */
+.header-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:24px;flex-wrap:wrap;}
+.link-btn{background:none;border:none;color:var(--muted);font-size:12px;padding:0;margin-bottom:12px;cursor:pointer;display:flex;align-items:center;gap:4px;}
+.eyebrow{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+.header-row h1{font-size:26px;color:var(--cream);}
+@media(min-width:640px){ .header-row h1{font-size:32px;} }
+.btn{
+  border-radius:999px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;
+  display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:none;color:var(--cream);
+  white-space:nowrap;
+}
+.btn-outline{color:var(--muted);}
+.btn-amber{background:var(--amber);color:var(--ink);border-color:var(--amber);}
+
+/* ---- Progress panel ---- */
+.progress-panel{padding:16px 20px;margin-bottom:24px;}
+.progress-top{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;gap:10px;flex-wrap:wrap;}
+.pct{font-size:18px;font-weight:600;color:var(--cream);}
+.progress-bar{width:100%;height:8px;border-radius:999px;background:var(--ink);overflow:hidden;}
+.progress-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--amber),var(--sage));transition:width .4s;}
+.stats-row{display:flex;flex-wrap:wrap;gap:24px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line);}
+.stat-value{font-size:18px;font-weight:600;color:var(--cream);line-height:1.2;}
+.stat-label{font-size:11px;color:var(--muted);}
+
+/* ---- Banner (chambres imprévues) ---- */
+.banner-sage{background:var(--sage-soft);border:1px solid var(--sage);border-radius:16px;padding:12px 16px;margin-bottom:16px;}
+.banner-title{font-size:12px;font-weight:600;color:var(--sage);margin-bottom:8px;}
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+.chip-sage{font-size:12px;font-weight:500;padding:5px 10px;border-radius:999px;background:var(--ink);color:var(--sage);border:1px dashed var(--sage);}
+
+/* ---- Room grid ---- */
+.room-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+@media(min-width:480px){ .room-grid{grid-template-columns:repeat(5,1fr);} }
+@media(min-width:720px){ .room-grid{grid-template-columns:repeat(6,1fr);} }
+@media(min-width:960px){ .room-grid{grid-template-columns:repeat(8,1fr);} }
+
+.room-card{
+  position:relative;aspect-ratio:1/1;border-radius:14px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+  background:var(--panel);border:1.5px solid var(--line);color:var(--cream);
+  cursor:pointer;font-family:inherit;transition:transform .1s;
+}
+.room-card:active{transform:scale(0.95);}
+.room-card.amber{background:var(--amber-soft);border-color:var(--amber);color:var(--amber);}
+.room-card.sage{background:var(--sage-soft);border-color:var(--sage);color:var(--sage);}
+.room-card.dashed{border-style:dashed;}
+.room-number{font-size:18px;font-weight:600;}
+@media(min-width:640px){ .room-number{font-size:20px;} }
+.people-badge,.check-icon,.coffee-icon{font-size:11px;opacity:.9;}
+.unplanned-badge{
+  position:absolute;top:4px;right:4px;width:15px;height:15px;border-radius:50%;
+  background:var(--amber);color:var(--ink);font-size:10px;font-weight:bold;
+  display:flex;align-items:center;justify-content:center;
+}
+
+.stepper-card{
+  background:var(--amber-soft);border:1.5px solid var(--amber);border-radius:14px;
+  aspect-ratio:1/1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;position:relative;
+}
+.card-close{
+  position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;
+  background:none;border:none;color:var(--muted);font-size:11px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+}
+.room-number.amber{color:var(--amber);}
+.stepper{display:flex;align-items:center;gap:6px;}
+.step-btn{
+  width:22px;height:22px;border-radius:50%;border:1px solid var(--amber);background:none;color:var(--amber);
+  font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.step-btn-fill{background:var(--amber);color:var(--ink);border-color:var(--amber);}
+.step-value{font-size:12px;font-weight:600;width:16px;text-align:center;}
+
+/* ---- Empty state ---- */
+.empty-state{
+  background:var(--panel);border:1px dashed var(--line);border-radius:18px;
+  text-align:center;padding:60px 20px;
+}
+.empty-state p{margin-top:10px;color:var(--muted);font-size:14px;}
+
+/* ---- Modals ---- */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;
+  padding:16px;z-index:50;
+}
+.modal{
+  background:var(--panel);border:1px solid var(--line);border-radius:18px;
+  padding:24px;max-width:380px;width:100%;position:relative;
+}
+.modal-close{
+  position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);
+  font-size:16px;cursor:pointer;
+}
+.modal h3{font-size:18px;color:var(--cream);margin-bottom:8px;}
+.modal p{color:var(--muted);font-size:14px;margin-bottom:20px;line-height:1.5;}
+.field-label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;}
+.modal select{
+  width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line);
+  background:var(--ink);color:var(--cream);font-size:14px;margin-bottom:16px;
+}
+.stepper-modal{gap:16px;margin-bottom:24px;}
+.stepper-modal .step-btn{width:34px;height:34px;font-size:16px;border-color:var(--line);color:var(--cream);}
+.stepper-modal .step-btn-fill{background:var(--amber);color:var(--ink);border-color:var(--amber);}
+.stepper-modal .step-value{font-size:16px;width:22px;}
+.modal-actions{display:flex;gap:12px;}
+.modal-actions .btn{flex:1;justify-content:center;}
+
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--panel);border:1px solid var(--line);color:var(--cream);
+  padding:12px 20px;border-radius:12px;font-size:13px;opacity:0;pointer-events:none;
+  transition:opacity .25s, transform .25s;z-index:100;max-width:90vw;text-align:center;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script>
+/* =========================================================
+   CONFIGURATION FIREBASE
+   Remplacez ces valeurs par celles de VOTRE nouveau projet
+   Firebase (Console Firebase → Paramètres du projet → Vos apps).
+   ========================================================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyD_I3nAoRvS2Q5aBH5uIUXXPui5jjK2FUc",
+  authDomain: "petit-dejeuner-hotel.firebaseapp.com",
+  projectId: "petit-dejeuner-hotel",
+  storageBucket: "petit-dejeuner-hotel.firebasestorage.app",
+  messagingSenderId: "918347724132",
+  appId: "1:918347724132:web:ad8ef85e792aec763b3671"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+const auth = firebase.auth();
+const STATE_DOC = db.collection('petit-dejeuner').doc('etat');
+
+const ROOMS = Array.from({ length: 175 - 101 + 1 }, (_, i) => 101 + i);
+
+function buildDefaultRooms(){
+  const rooms = {};
+  ROOMS.forEach(n => { rooms[String(n)] = { state: 'none', people: null, unplanned: false }; });
+  return rooms;
+}
+
+/* ---------- État global ---------- */
+let STATE = { rooms: buildDefaultRooms() };
+let SESSION = null;        // null | 'reception' | 'service'
+let LOADING = true;
+let LOAD_ERROR = false;
+let AUTH_LOADING = true;
+let AUTH_USER = null;
+let AUTH_ERROR = '';
+let AUTH_SUBMITTING = false;
+let CONFIRM_RESET = false;
+let ADD_ROOM_OPEN = false;
+let STATE_LOADED_ONCE = false;
+let addRoomDraft = { room: null, people: 1 };
+
+/* =========================================================
+   FIRESTORE
+   ========================================================= */
+async function loadState(){
+  try{
+    const snap = await STATE_DOC.get();
+    if(snap.exists){
+      const data = snap.data();
+      STATE.rooms = Object.assign(buildDefaultRooms(), data.rooms || {});
+    } else {
+      await STATE_DOC.set({ rooms: STATE.rooms, updatedAt: Date.now() });
+    }
+    LOADING = false;
+  }catch(e){
+    console.error('Erreur de chargement :', e);
+    LOAD_ERROR = true;
+    LOADING = false;
+  }
+  startRealtime();
+}
+
+function startRealtime(){
+  STATE_DOC.onSnapshot(snap=>{
+    if(!snap.exists) return;
+    const data = snap.data();
+    STATE.rooms = Object.assign(buildDefaultRooms(), data.rooms || {});
+    render();
+  }, err=>{
+    console.error('Erreur de synchronisation :', err);
+  });
+}
+
+async function saveState(){
+  try{
+    await STATE_DOC.set({ rooms: STATE.rooms, updatedAt: Date.now() });
+  }catch(e){
+    console.error('Erreur de sauvegarde :', e);
+    showToast("Erreur de sauvegarde. Vérifiez la connexion.");
+  }
+}
+
+/* =========================================================
+   MUTATIONS
+   ========================================================= */
+function toggleSelect(n){
+  const r = STATE.rooms[n];
+  if(r.state === 'arrived') return; // déjà en service, la réception n'y touche plus
+  STATE.rooms[n] = r.state === 'none'
+    ? { state: 'selected', people: 1, unplanned: false }
+    : { state: 'none', people: null, unplanned: false };
+  render();
+  saveState();
+}
+function updatePeople(n, delta){
+  const r = STATE.rooms[n];
+  if(r.state === 'none') return;
+  const next = Math.max(1, Math.min(20, (r.people || 1) + delta));
+  STATE.rooms[n] = { ...r, people: next };
+  render();
+  saveState();
+}
+function toggleArrived(n){
+  const r = STATE.rooms[n];
+  STATE.rooms[n] = { ...r, state: r.state === 'arrived' ? 'selected' : 'arrived' };
+  render();
+  saveState();
+}
+function addUnplannedRoom(n, people){
+  STATE.rooms[n] = { state: 'arrived', people, unplanned: true };
+  ADD_ROOM_OPEN = false;
+  addRoomDraft = { room: null, people: 1 };
+  render();
+  saveState();
+}
+function doReset(){
+  STATE.rooms = buildDefaultRooms();
+  CONFIRM_RESET = false;
+  render();
+  saveState();
+}
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+let toastTimer = null;
+function showToast(msg){
+  let t = document.getElementById('toast');
+  if(!t){
+    t = document.createElement('div');
+    t.id = 'toast';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 3500);
+}
+
+/* =========================================================
+   AUTH — connexion établissement (Firebase Auth)
+   ========================================================= */
+function authErrorMessage(e){
+  const code = e && e.code;
+  if(code==='auth/invalid-credential' || code==='auth/wrong-password' || code==='auth/user-not-found') return 'Identifiants incorrects.';
+  if(code==='auth/invalid-email') return 'Adresse e-mail invalide.';
+  if(code==='auth/too-many-requests') return 'Trop de tentatives. Réessayez dans quelques minutes.';
+  if(code==='auth/network-request-failed') return 'Connexion réseau indisponible.';
+  return 'Connexion impossible. Réessayez.';
+}
+
+function renderAuthGate(app){
+  app.innerHTML = `
+  <div class="center-wrap">
+    <div class="panel auth-card">
+      <span class="brand-emoji">🌅</span>
+      <h2>Connexion de l'établissement</h2>
+      <p class="muted">Saisissez les identifiants de l'hôtel pour accéder à l'application.</p>
+      <input type="email" id="auth-email" placeholder="Adresse e-mail" autocomplete="username">
+      <input type="password" id="auth-password" placeholder="Mot de passe" autocomplete="current-password">
+      <button class="btn btn-amber" id="auth-submit-btn" style="width:100%;justify-content:center;margin-top:4px;" ${AUTH_SUBMITTING?'disabled':''}>
+        ${AUTH_SUBMITTING ? 'Connexion…' : 'Se connecter'}
+      </button>
+      <div class="err-msg">${AUTH_ERROR || ''}</div>
+    </div>
+  </div>`;
+  const emailInput = document.getElementById('auth-email');
+  const pwInput = document.getElementById('auth-password');
+  const submit = async ()=>{
+    const email = emailInput.value.trim();
+    const pw = pwInput.value;
+    if(!email || !pw){ AUTH_ERROR = "Veuillez renseigner l'e-mail et le mot de passe."; render(); return; }
+    AUTH_ERROR = ''; AUTH_SUBMITTING = true; render();
+    try{
+      await auth.signInWithEmailAndPassword(email, pw);
+    }catch(e){
+      AUTH_SUBMITTING = false;
+      AUTH_ERROR = authErrorMessage(e);
+      render();
+    }
+  };
+  document.getElementById('auth-submit-btn').onclick = submit;
+  [emailInput, pwInput].forEach(el=>{
+    el.addEventListener('keydown', e=>{ if(e.key === 'Enter') submit(); });
+  });
+  emailInput.focus();
+}
+
+/* =========================================================
+   SESSION PICKER
+   ========================================================= */
+function renderSessionPicker(app){
+  const selectedRooms = ROOMS.filter(n=> STATE.rooms[n].state !== 'none');
+  const arrivedCount = selectedRooms.filter(n=> STATE.rooms[n].state === 'arrived').length;
+  app.innerHTML = `
+  <div class="center-wrap">
+    <div class="picker">
+      <div class="brand-line">🌅 Petits-déjeuners</div>
+      <p class="muted">Choisissez votre session pour continuer.</p>
+      <button class="session-card" id="pick-reception">
+        <span class="session-icon">🛎️</span>
+        <span>
+          <span class="session-title">Réception</span>
+          <span class="session-desc">Sélectionner les chambres attendues au petit-déjeuner</span>
+        </span>
+      </button>
+      <button class="session-card" id="pick-service">
+        <span class="session-icon">☕</span>
+        <span>
+          <span class="session-title">Service petit-déjeuner</span>
+          <span class="session-desc">Valider les arrivées${selectedRooms.length ? ` · ${arrivedCount}/${selectedRooms.length} faites` : ''}</span>
+        </span>
+      </button>
+      <a href="#" id="auth-logout-link" class="logout-link">Se déconnecter de cet établissement</a>
+    </div>
+  </div>`;
+  document.getElementById('pick-reception').onclick = ()=>{ SESSION = 'reception'; render(); };
+  document.getElementById('pick-service').onclick = ()=>{ SESSION = 'service'; render(); };
+  document.getElementById('auth-logout-link').onclick = (e)=>{ e.preventDefault(); auth.signOut(); };
+}
+
+/* =========================================================
+   VUE PRINCIPALE
+   ========================================================= */
+function computeStats(){
+  const selectedRooms = ROOMS.filter(n=> STATE.rooms[n].state !== 'none');
+  const arrivedRooms = selectedRooms.filter(n=> STATE.rooms[n].state === 'arrived');
+  const totalPeople = selectedRooms.reduce((s,n)=> s + (STATE.rooms[n].people || 0), 0);
+  const arrivedPeople = arrivedRooms.reduce((s,n)=> s + (STATE.rooms[n].people || 0), 0);
+  return {
+    selectedRooms,
+    arrivedCount: arrivedRooms.length,
+    pct: selectedRooms.length ? Math.round(arrivedRooms.length / selectedRooms.length * 100) : 0,
+    totalPeople,
+    remainingPeople: totalPeople - arrivedPeople,
+    remainingRooms: selectedRooms.length - arrivedRooms.length,
+  };
+}
+
+function renderMain(app){
+  const stats = computeStats();
+  const unplannedRooms = ROOMS.filter(n=> STATE.rooms[n].unplanned);
+
+  app.innerHTML = `
+  <div class="page">
+    <div class="header-row">
+      <div>
+        <button class="link-btn" id="back-session">← Changer de session</button>
+        <div class="eyebrow">${SESSION === 'reception' ? 'Réception' : 'Service du matin'}</div>
+        <h1>${SESSION === 'reception' ? 'Petits-déjeuners attendus' : 'Arrivées petit-déjeuner'}</h1>
+      </div>
+      ${SESSION === 'reception'
+        ? `<button class="btn btn-outline" id="reset-btn">↺ <span>Réinitialiser la journée</span></button>`
+        : `<button class="btn btn-amber" id="add-room-btn">+ Chambre non prévue</button>`}
+    </div>
+
+    <div class="panel progress-panel">
+      <div class="progress-top">
+        <span class="muted">${stats.selectedRooms.length === 0 ? "Aucune chambre attendue pour l'instant" : `${stats.arrivedCount} sur ${stats.selectedRooms.length} arrivées`}</span>
+        <span class="pct">${stats.pct}%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${stats.pct}%"></div></div>
+      <div class="stats-row">
+        <div><div class="stat-value">${stats.totalPeople}</div><div class="stat-label">Personnes prévues</div></div>
+        <div><div class="stat-value">${stats.remainingPeople}</div><div class="stat-label">Personnes restantes</div></div>
+        <div><div class="stat-value">${stats.remainingRooms}</div><div class="stat-label">Chambres restantes</div></div>
+      </div>
+    </div>
+
+    ${SESSION === 'reception' ? renderReceptionBody(unplannedRooms) : renderServiceBody(stats)}
+  </div>
+  ${CONFIRM_RESET ? renderResetModal() : ''}
+  ${ADD_ROOM_OPEN ? renderAddRoomModal() : ''}
+  `;
+
+  document.getElementById('back-session').onclick = ()=>{ SESSION = null; render(); };
+
+  if(SESSION === 'reception'){
+    document.getElementById('reset-btn').onclick = ()=>{ CONFIRM_RESET = true; render(); };
+    wireReceptionGrid();
+  } else {
+    const addBtn = document.getElementById('add-room-btn');
+    if(addBtn) addBtn.onclick = ()=>{ ADD_ROOM_OPEN = true; render(); };
+    wireServiceGrid();
+  }
+  if(CONFIRM_RESET) wireResetModal();
+  if(ADD_ROOM_OPEN) wireAddRoomModal();
+}
+
+function renderReceptionBody(unplannedRooms){
+  return `
+  <div>
+    ${unplannedRooms.length > 0 ? `
+    <div class="banner-sage">
+      <div class="banner-title">+ Ajoutées par le service petit-déjeuner (${unplannedRooms.length})</div>
+      <div class="chip-row">
+        ${unplannedRooms.map(n=>`<span class="chip-sage">${n}${STATE.rooms[n].people ? ` · ${STATE.rooms[n].people} pers.` : ''}</span>`).join('')}
+      </div>
+    </div>` : ''}
+    <p class="muted small" style="margin-bottom:14px;display:block;">Touchez une chambre pour l'ajouter à la liste, puis ajustez le nombre de personnes avec les boutons − / +.</p>
+    <div class="room-grid" id="reception-grid">
+      ${ROOMS.map(n=>renderReceptionCard(n)).join('')}
+    </div>
+  </div>`;
+}
+
+function renderServiceBody(stats){
+  if(stats.selectedRooms.length === 0){
+    return `<div class="empty-state">🌅<p>Aucune chambre n'a encore été sélectionnée par la réception.</p></div>`;
+  }
+  return `
+  <div>
+    <p class="muted small" style="margin-bottom:14px;display:block;">Touchez une chambre à son arrivée pour valider le petit-déjeuner pris.</p>
+    <div class="room-grid" id="service-grid">
+      ${stats.selectedRooms.map(n=>renderServiceCard(n)).join('')}
+    </div>
+  </div>`;
+}
+
+function renderReceptionCard(n){
+  const r = STATE.rooms[n];
+  if(r.state === 'selected'){
+    return `
+    <div class="stepper-card">
+      <button class="card-close" data-toggle="${n}" title="Retirer de la sélection">✕</button>
+      <span class="room-number amber">${n}</span>
+      <div class="stepper">
+        <button class="step-btn" data-step="${n}" data-delta="-1">−</button>
+        <span class="step-value">${r.people ?? 1}</span>
+        <button class="step-btn step-btn-fill" data-step="${n}" data-delta="1">+</button>
+      </div>
+    </div>`;
+  }
+  let cls = 'room-card', badge = '', extra = '';
+  if(r.state === 'arrived'){
+    cls += ' sage';
+    if(r.unplanned) badge = `<span class="unplanned-badge">+</span>`;
+    extra = r.people ? `<span class="people-badge">👤 ${r.people}</span>` : `<span class="check-icon">✓</span>`;
+  }
+  return `
+  <button class="${cls}" data-toggle="${n}">
+    ${badge}
+    <span class="room-number">${n}</span>
+    ${extra}
+  </button>`;
+}
+
+function renderServiceCard(n){
+  const r = STATE.rooms[n];
+  let cls = 'room-card';
+  let extra = '';
+  if(r.state === 'selected'){
+    cls += ' amber';
+    extra = `<span class="coffee-icon">☕</span>`;
+  } else if(r.state === 'arrived'){
+    cls += ' sage';
+    extra = r.people ? `<span class="people-badge">👤 ${r.people}</span>` : `<span class="check-icon">✓</span>`;
+  }
+  if(r.unplanned) cls += ' dashed';
+  const badge = r.unplanned ? `<span class="unplanned-badge">+</span>` : '';
+  return `
+  <button class="${cls}" data-toggle-arrived="${n}">
+    ${badge}
+    <span class="room-number">${n}</span>
+    ${extra}
+  </button>`;
+}
+
+function wireReceptionGrid(){
+  const grid = document.getElementById('reception-grid');
+  if(!grid) return;
+  grid.querySelectorAll('[data-toggle]').forEach(el=>{
+    el.onclick = ()=> toggleSelect(Number(el.dataset.toggle));
+  });
+  grid.querySelectorAll('[data-step]').forEach(el=>{
+    el.onclick = (e)=>{
+      e.stopPropagation();
+      updatePeople(Number(el.dataset.step), Number(el.dataset.delta));
+    };
+  });
+}
+
+function wireServiceGrid(){
+  const grid = document.getElementById('service-grid');
+  if(!grid) return;
+  grid.querySelectorAll('[data-toggle-arrived]').forEach(el=>{
+    el.onclick = ()=> toggleArrived(Number(el.dataset.toggleArrived));
+  });
+}
+
+/* =========================================================
+   MODALES
+   ========================================================= */
+function renderResetModal(){
+  return `
+  <div class="modal-overlay" id="reset-overlay">
+    <div class="modal">
+      <button class="modal-close" id="reset-close">✕</button>
+      <h3>Réinitialiser la journée ?</h3>
+      <p>Toutes les sélections et arrivées seront effacées. Cette action est irréversible.</p>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="reset-cancel">Annuler</button>
+        <button class="btn btn-amber" id="reset-confirm">Réinitialiser</button>
+      </div>
+    </div>
+  </div>`;
+}
+function wireResetModal(){
+  const overlay = document.getElementById('reset-overlay');
+  const close = ()=>{ CONFIRM_RESET = false; render(); };
+  overlay.onclick = (e)=>{ if(e.target === overlay) close(); };
+  document.getElementById('reset-close').onclick = close;
+  document.getElementById('reset-cancel').onclick = close;
+  document.getElementById('reset-confirm').onclick = doReset;
+}
+
+function renderAddRoomModal(){
+  const available = ROOMS.filter(n=> STATE.rooms[n].state === 'none');
+  if(addRoomDraft.room === null || !STATE.rooms[addRoomDraft.room] || STATE.rooms[addRoomDraft.room].state !== 'none'){
+    addRoomDraft.room = available[0] ?? null;
+  }
+  return `
+  <div class="modal-overlay" id="add-overlay">
+    <div class="modal">
+      <button class="modal-close" id="add-close">✕</button>
+      <h3>Chambre non prévue</h3>
+      <p>Une chambre se présente sans avoir été annoncée par la réception.</p>
+      ${available.length === 0 ? `<p>Toutes les chambres sont déjà enregistrées pour ce matin.</p>` : `
+      <label class="field-label">Numéro de chambre</label>
+      <select id="add-room-select">
+        ${available.map(n=>`<option value="${n}" ${n===addRoomDraft.room?'selected':''}>${n}</option>`).join('')}
+      </select>
+      <label class="field-label">Nombre de personnes</label>
+      <div class="stepper stepper-modal">
+        <button class="step-btn" id="add-people-minus">−</button>
+        <span class="step-value" id="add-people-value">${addRoomDraft.people}</span>
+        <button class="step-btn step-btn-fill" id="add-people-plus">+</button>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-outline" id="add-cancel">Annuler</button>
+        <button class="btn btn-amber" id="add-confirm">Ajouter</button>
+      </div>
+      `}
+    </div>
+  </div>`;
+}
+function wireAddRoomModal(){
+  const overlay = document.getElementById('add-overlay');
+  const close = ()=>{ ADD_ROOM_OPEN = false; render(); };
+  overlay.onclick = (e)=>{ if(e.target === overlay) close(); };
+  document.getElementById('add-close').onclick = close;
+  const select = document.getElementById('add-room-select');
+  if(!select) return; // aucune chambre disponible
+  select.onchange = ()=>{ addRoomDraft.room = Number(select.value); };
+  document.getElementById('add-people-minus').onclick = ()=>{
+    addRoomDraft.people = Math.max(1, addRoomDraft.people - 1);
+    document.getElementById('add-people-value').textContent = addRoomDraft.people;
+  };
+  document.getElementById('add-people-plus').onclick = ()=>{
+    addRoomDraft.people = Math.min(10, addRoomDraft.people + 1);
+    document.getElementById('add-people-value').textContent = addRoomDraft.people;
+  };
+  document.getElementById('add-cancel').onclick = close;
+  document.getElementById('add-confirm').onclick = ()=>{
+    if(addRoomDraft.room == null) return;
+    addUnplannedRoom(addRoomDraft.room, addRoomDraft.people);
+  };
+}
+
+/* =========================================================
+   RENDU PRINCIPAL
+   ========================================================= */
+function render(){
+  const app = document.getElementById('app');
+  if(AUTH_LOADING){
+    app.innerHTML = `<div class="center-wrap"><span class="muted">Vérification de la session…</span></div>`;
+    return;
+  }
+  if(!AUTH_USER){ renderAuthGate(app); return; }
+  if(LOADING){
+    app.innerHTML = `<div class="center-wrap"><span class="muted">Chargement…</span></div>`;
+    return;
+  }
+  if(LOAD_ERROR){
+    app.innerHTML = `<div class="center-wrap"><div class="panel" style="padding:24px;max-width:380px;"><p>Impossible de charger les données. Vérifiez votre connexion et rechargez la page.</p></div></div>`;
+    return;
+  }
+  if(!SESSION){ renderSessionPicker(app); return; }
+  renderMain(app);
+}
+
+/* =========================================================
+   BOOT
+   ========================================================= */
+auth.onAuthStateChanged(async (user)=>{
+  AUTH_USER = user;
+  AUTH_LOADING = false;
+  AUTH_SUBMITTING = false;
+  if(user && !STATE_LOADED_ONCE){
+    STATE_LOADED_ONCE = true;
+    LOADING = true;
+    render();
+    await loadState();
+  }
+  if(!user){
+    STATE_LOADED_ONCE = false;
+    LOADING = true;
+    SESSION = null;
+  }
+  render();
+});
+</script>
+</body>
+</html>
